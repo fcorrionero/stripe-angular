@@ -1,3 +1,121 @@
-<p>
-  stripe works!
-</p>
+<!--<input [(ngModel)]="reservation" (input)="onInputChange($event)" value={{value}} #ctrl="ngModel" name="prueba" required matInput placeholder="Introduzca su nº reserva" />-->
+<div *ngIf="loading">
+  <br/><br/><br/><br/>
+  <app-loading *ngIf="loading"></app-loading>
+</div>
+<mat-card class="help-card-content" *ngIf="!loading">
+  <mat-card-header>
+    <h3 style="border-bottom: 5px solid #fd8283;" i18n>
+      Instrucciones
+    </h3>
+  </mat-card-header>
+  <mat-card-content class="help-card-body" style="font-size: 20px">
+    <ul>
+      <li i18n>Introduzca el número de tarjeta sin espacios con el teclado táctil</li>
+      <li i18n>Opcionalmente introduce el nombre del titular para mayor seguridad (toca con el dedo sobre el texto "Nombre")</li>
+      <li i18n>Toca el icono del calendario para introducir la fecha de vencimiento de la tarjeta</li>
+      <li i18n>Toca el texto "CVC" para introducir el cvc de la tarjeta (por seguridad no aparecerán los números en tarjeta)</li>
+    </ul>
+  </mat-card-content>
+</mat-card>
+<mat-card *ngIf="error">
+  {{ error }}
+</mat-card>
+<mat-card *ngIf="!paymentDone && !loading">
+  <mat-grid-list cols="6" rowHeight="4em">
+    <mat-grid-tile [colspan]="2"></mat-grid-tile>
+
+    <mat-grid-tile [colspan]="2">
+      <mat-form-field class="full-width">
+        <input type="number"
+               id="cardNum"
+               #cardNum="matInput"
+               [(ngModel)]="cardNumber"
+               (click)="openKeyboard()"
+               (focus)="onInputFocus($event)"
+               (input)="onInputChange($event)"
+               value={{cardNumber}}
+               name="card-number"
+               size="20" data-stripe="number"
+               required
+               matInput
+               placeholder="Introduzca su nº tarjeta"
+        />
+      </mat-form-field>
+    </mat-grid-tile>
+
+    <mat-grid-tile [colspan]="2"></mat-grid-tile>
+
+    <mat-grid-tile [colspan]="2"></mat-grid-tile>
+
+    <mat-grid-tile [colspan]="2">
+      <mat-form-field class="full-width">
+        <input id="cardName"
+               (click)="openKeyboard()"
+               (focus)="onInputFocus($event)"
+               (input)="onInputChange($event)"
+               type="text"
+               name="first-name"
+               placeholder="Nombre"
+               matInput
+        />
+      </mat-form-field>
+    </mat-grid-tile>
+
+    <mat-grid-tile [colspan]="2"></mat-grid-tile>
+    <mat-grid-tile [colspan]="2"></mat-grid-tile>
+
+    <mat-grid-tile>
+      <mat-form-field class="date-cvc">
+        <input id="cardExpiration"
+               required
+               [formControl]="date"
+               name="expiry"
+               placeholder="Expiración"
+               readonly
+               matInput
+               [matDatepicker]="dp"
+        />
+        <mat-datepicker-toggle matSuffix [for]="dp"></mat-datepicker-toggle>
+        <mat-datepicker #dp
+                        startView="multi-year"
+                        (yearSelected)="chosenYearHandler($event)"
+                        (monthSelected)="chosenMonthHandler($event, dp)"
+                        panelClass="example-month-picker">
+        </mat-datepicker>
+      </mat-form-field>
+    </mat-grid-tile>
+
+    <mat-grid-tile>
+      <mat-form-field class="number-cvc">
+        <input id="cardCVC"
+               (click)="openKeyboard()"
+               (focus)="onInputFocus($event)"
+               (input)="onInputChange($event)"
+               type="password"
+               required [(ngModel)]="cvc"
+               name="cvc"
+               size="4"
+               data-stripe="cvc"
+               placeholder="CVC"
+               matInput
+        />
+      </mat-form-field>
+    </mat-grid-tile>
+
+  </mat-grid-list>
+
+  <button mat-raised-button class="payment-button" color="primary" (click)="getToken()">Realizar Pago</button>
+</mat-card>
+
+<div class="simple-keyboard" *ngIf="!paymentDone && !loading"></div>
+
+<div *ngIf="paymentDone">
+  <h3 id="paymentAccepted" i18n>PAGO REALIZADO</h3>
+  <button class="payment-completed-button" mat-raised-button (click)="next()">
+    <strong><span i18n>Continuar</span></strong>
+  </button>
+</div>
+
+<!--<button (click)="openPayment()">Pagar</button>-->
+<h1 id="paymentNoAccepted">PAGO NO REALIZADO</h1>
